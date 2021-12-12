@@ -70,10 +70,10 @@ class PyPaintApp(pgt.GameScreen):
         set the current color
         :color: a string representing a color
         '''
-        # try:
-        self.selected_color = self.parse_color(color)
-        # except ValueError as e:
-        #     return False
+        try:
+            self.selected_color = self.parse_color(color)
+        except ValueError as e:
+            return False
         return True
 
     def parse_color(self, color: str) -> pygame.Color:
