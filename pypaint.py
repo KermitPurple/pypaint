@@ -90,7 +90,6 @@ class PyPaintApp(pgt.GameScreen):
                 return convert_hex(r, r, g, g, b, b)
         match list(filter(lambda x: x, re.split(' |\(|\)|,', color.lower()))):
             case ['rgb', r, g, b] | [r, g, b]:
-                print(r, g, b)
                 return pygame.Color(
                     int(r),
                     int(g),
