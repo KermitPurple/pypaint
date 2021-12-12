@@ -2,6 +2,32 @@
 
 import pygame
 import pygame_tools as pgt
+import re
+
+HEX_DICT = {
+    '1': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    'a': 10,
+    'b': 11,
+    'c': 12,
+    'd': 13,
+    'e': 14,
+    'f': 15
+}
+
+def convert_hex(r1: str, r2: str, g1: str, g2: str, b1: str, b2: str) -> pygame.Color:
+    return pygame.Color(
+        15 * HEX_DICT[r1] + HEX_DICT[r2],
+        15 * HEX_DICT[g1] + HEX_DICT[g2],
+        15 * HEX_DICT[b1] + HEX_DICT[b2]
+    )
 
 class PyPaintApp(pgt.GameScreen):
     '''
@@ -17,6 +43,9 @@ class PyPaintApp(pgt.GameScreen):
         self.screen.fill('white')
 
     def handle_left_click(self):
+        '''
+        handle left click input
+        '''
         pos = self.get_scaled_mouse_pos()
         if self.prev_pos is not None:
             pygame.draw.line(
@@ -35,6 +64,39 @@ class PyPaintApp(pgt.GameScreen):
                 rect
             )
         self.prev_pos = pos
+
+    def set_color(self, color: str) -> bool:
+        '''
+        set the current color
+        :color: a string representing a color
+        '''
+        # try:
+        self.selected_color = self.parse_color(color)
+        # except ValueError as e:
+        #     return False
+        return True
+
+    def parse_color(self, color: str) -> pygame.Color:
+        '''
+        parse a color string
+        :color: a string representing a color
+        '''
+        if color in pygame.colordict.THECOLORS:
+            return pygame.Color(color)
+        match list(color.lower()):
+            case ['#', r1, r2, g1, g2, b1, b2] | [r1, r2, g1, g2 ,b1, b2]:
+                return convert_hex(r1, r2, g1, g2, b1, b2)
+            case ['#', r, g, b] | [r, g, b]:
+                return convert_hex(r, r, g, g, b, b)
+        match list(filter(lambda x: x, re.split(' |\(|\)|,', color.lower()))):
+            case ['rgb', r, g, b] | [r, g, b]:
+                print(r, g, b)
+                return pygame.Color(
+                    int(r),
+                    int(g),
+                    int(b),
+                    )
+        raise ValueError('Invalid Color')
 
     def update(self):
         if pygame.mouse.get_pressed()[0]: # left click pressed
