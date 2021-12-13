@@ -45,12 +45,12 @@ def smooth_line(
     theta = math.atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x)
     i = 0
     while i < distance:
-        rect = pygame.Rect(0, 0, width, width)
-        rect.center = start_pos + i * pgt.Point(math.cos(theta), math.sin(theta))
-        pygame.draw.rect(
+        pos = start_pos + i * pgt.Point(math.cos(theta), math.sin(theta))
+        pygame.draw.circle(
             screen,
             color,
-            rect
+            pos,
+            width // 2,
         )
         i += scale
 
@@ -106,12 +106,11 @@ class PyPaintApp(pgt.GameScreen):
                 self.selected_width
             )
         else:
-            rect = pgt.Rect(0, 0, self.selected_width, self.selected_width)
-            rect.center = pos
-            pygame.draw.rect(
+            pygame.draw.circle(
                 self.drawing_screen,
                 self.selected_color,
-                rect
+                pos,
+                self.selected_width // 2,
             )
         self.prev_pos = pos
 
