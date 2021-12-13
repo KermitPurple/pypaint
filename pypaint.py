@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
-import pygame
 import pygame_tools as pgt
+import pygame
+import math
 import re
 from enum import Enum
 
@@ -31,8 +32,32 @@ def convert_hex(r1: str, r2: str, g1: str, g2: str, b1: str, b2: str) -> pygame.
         15 * HEX_DICT[b1] + HEX_DICT[b2]
     )
 
+def smooth_line(
+    screen: pygame.Surface,
+    color: pygame.Color,
+    start_pos: pgt.Point,
+    end_pos: pgt.Point,
+    density: int,
+    width: int = 1,
+    ):
+    distance = pgt.Point.distance(start_pos, end_pos)
+    scale = distance / density
+    theta = math.atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x)
+    i = 0
+    while i < distance:
+        rect = pygame.Rect(0, 0, width, width)
+        rect.center = start_pos + i * pgt.Point(math.cos(theta), math.sin(theta))
+        pygame.draw.rect(
+            screen,
+            color,
+            rect
+        )
+        i += scale
+
+
 class InputDestination(Enum):
     Color = 0
+    BrushWidth = 1
 
 class PyPaintApp(pgt.GameScreen):
     '''
@@ -72,11 +97,12 @@ class PyPaintApp(pgt.GameScreen):
         '''
         pos = self.get_scaled_mouse_pos()
         if self.prev_pos is not None:
-            pygame.draw.line(
+            smooth_line(
                 self.drawing_screen,
                 self.selected_color,
                 pos,
                 self.prev_pos,
+                100,
                 self.selected_width
             )
         else:
@@ -100,11 +126,18 @@ class PyPaintApp(pgt.GameScreen):
                 match self.input_destination:
                     case InputDestination.Color:
                         self.set_color(self.input_box.get_value())
+                    case InputDestination.BrushWidth:
+                        try:
+                            self.selected_width = int(self.input_box.get_value())
+                        except: pass
                 self.input_destination = None
             return
         match event.unicode.lower():
             case 'c':
                 self.input_destination = InputDestination.Color
+                self.input_box.reset()
+            case 's':
+                self.input_destination = InputDestination.BrushWidth
                 self.input_box.reset()
 
     def set_color(self, color: str) -> bool:
