@@ -139,6 +139,8 @@ class PyPaintApp(pgt.GameScreen):
             case 's':
                 self.input_destination = InputDestination.BrushWidth
                 self.input_box.reset()
+            case 'f':
+                self.drawing_screen.fill(self.selected_color)
 
     def set_color(self, color: str) -> bool:
         '''
