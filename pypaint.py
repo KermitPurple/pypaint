@@ -27,9 +27,9 @@ HEX_DICT = {
 
 def convert_hex(r1: str, r2: str, g1: str, g2: str, b1: str, b2: str) -> pygame.Color:
     return pygame.Color(
-        15 * HEX_DICT[r1] + HEX_DICT[r2],
-        15 * HEX_DICT[g1] + HEX_DICT[g2],
-        15 * HEX_DICT[b1] + HEX_DICT[b2]
+        16 * HEX_DICT[r1] + HEX_DICT[r2],
+        16 * HEX_DICT[g1] + HEX_DICT[g2],
+        16 * HEX_DICT[b1] + HEX_DICT[b2]
     )
 
 def smooth_line(
