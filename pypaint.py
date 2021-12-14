@@ -78,10 +78,14 @@ def parse_color(color: str) -> pygame.Color:
 class InputDestination(Enum):
     Color = 0
     BrushWidth = 1
+    SaveFile = 2
+    LoadFile = 3
 
 INPUT_TITLE_DICT = {
     InputDestination.Color: 'Enter a brush color',
     InputDestination.BrushWidth: 'Enter a brush width',
+    InputDestination.SaveFile: 'Enter filename to save to',
+    InputDestination.LoadFile: 'Enter filename to load from',
 }
 
 class PyPaintApp(pgt.GameScreen):
@@ -171,18 +175,28 @@ class PyPaintApp(pgt.GameScreen):
                         try:
                             self.selected_width = int(self.input_box.get_value())
                         except: pass
+                    case InputDestination.SaveFile:
+                        try:
+                            pygame.image.save(self.drawing_screen, self.input_box.get_value())
+                        except: pass
+                    case InputDestination.LoadFile:
+                        self.drawing_screen = pygame.image.load(self.input_box.get_value())
                 self.input_destination = None
             return
         match event.unicode.lower():
-            case 'c':
-                self.input_destination = InputDestination.Color
+            case ('c' | 'w' | 's' | 'l' ) as val:
+                match val:
+                    case 'c': # set color
+                        self.input_destination = InputDestination.Color
+                    case 'w': # set brush width
+                        self.input_destination = InputDestination.BrushWidth
+                    case 's': # save to file
+                        self.input_destination = InputDestination.SaveFile
+                    case 'l': # load from file
+                        self.input_destination = InputDestination.LoadFile
                 self.input_box.reset()
                 self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
-            case 's':
-                self.input_destination = InputDestination.BrushWidth
-                self.input_box.reset()
-                self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
-            case 'f':
+            case 'f': # fill screen
                 self.drawing_screen.fill(self.selected_color)
 
     def set_color(self, color: str) -> bool:
