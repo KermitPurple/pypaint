@@ -94,6 +94,7 @@ class PyPaintApp(pgt.GameScreen):
     '''
     def __init__(self):
         pygame.init()
+        pygame.display.set_caption('PyPaint')
         size = pgt.Point(1400, 750)
         super().__init__(pygame.display.set_mode(size), size, size // 2)
         self.center = self.window_size // 2
