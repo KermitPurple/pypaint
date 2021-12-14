@@ -178,7 +178,6 @@ class PyPaintApp(pgt.GameScreen):
                 self.input_destination = InputDestination.Color
                 self.input_box.reset()
                 self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
-                print(self.title_box.text[0])
             case 's':
                 self.input_destination = InputDestination.BrushWidth
                 self.input_box.reset()
