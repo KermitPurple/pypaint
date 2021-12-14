@@ -180,7 +180,9 @@ class PyPaintApp(pgt.GameScreen):
                             pygame.image.save(self.drawing_screen, self.input_box.get_value())
                         except: pass
                     case InputDestination.LoadFile:
-                        self.drawing_screen = pygame.image.load(self.input_box.get_value())
+                        try:
+                            self.drawing_screen = pygame.image.load(self.input_box.get_value())
+                        except: pass
                 self.input_destination = None
             return
         match event.unicode.lower():
