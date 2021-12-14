@@ -54,6 +54,26 @@ def smooth_line(
         )
         i += scale
 
+def parse_color(color: str) -> pygame.Color:
+    '''
+    parse a color string
+    :color: a string representing a color
+    '''
+    if color in pygame.colordict.THECOLORS:
+        return pygame.Color(color)
+    match list(color.lower()):
+        case ['#', r1, r2, g1, g2, b1, b2] | [r1, r2, g1, g2 ,b1, b2]:
+            return convert_hex(r1, r2, g1, g2, b1, b2)
+        case ['#', r, g, b] | [r, g, b]:
+            return convert_hex(r, r, g, g, b, b)
+    match list(filter(lambda x: x, re.split(' |\(|\)|,', color.lower()))):
+        case ['rgb', r, g, b] | [r, g, b]:
+            return pygame.Color(
+                int(r),
+                int(g),
+                int(b),
+                )
+    raise ValueError('Invalid Color')
 
 class InputDestination(Enum):
     Color = 0
@@ -85,7 +105,7 @@ class PyPaintApp(pgt.GameScreen):
                 self.window_size.x * 8 // 10,
                 input_height,
             ),
-            self.parse_color('#333'),
+            parse_color('#333'),
             'white',
             0,
             None,
@@ -101,7 +121,7 @@ class PyPaintApp(pgt.GameScreen):
                 self.window_size.x * 8 // 10,
                 title_height,
             ),
-            self.parse_color('#222'),
+            parse_color('#222'),
             'white',
             0,
             pgt.Point(0, 0),
@@ -172,31 +192,10 @@ class PyPaintApp(pgt.GameScreen):
         :color: a string representing a color
         '''
         try:
-            self.selected_color = self.parse_color(color)
+            self.selected_color = parse_color(color)
         except ValueError as e:
             return False
         return True
-
-    def parse_color(self, color: str) -> pygame.Color:
-        '''
-        parse a color string
-        :color: a string representing a color
-        '''
-        if color in pygame.colordict.THECOLORS:
-            return pygame.Color(color)
-        match list(color.lower()):
-            case ['#', r1, r2, g1, g2, b1, b2] | [r1, r2, g1, g2 ,b1, b2]:
-                return convert_hex(r1, r2, g1, g2, b1, b2)
-            case ['#', r, g, b] | [r, g, b]:
-                return convert_hex(r, r, g, g, b, b)
-        match list(filter(lambda x: x, re.split(' |\(|\)|,', color.lower()))):
-            case ['rgb', r, g, b] | [r, g, b]:
-                return pygame.Color(
-                    int(r),
-                    int(g),
-                    int(b),
-                    )
-        raise ValueError('Invalid Color')
 
     def draw_input(self):
         '''
