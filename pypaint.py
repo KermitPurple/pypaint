@@ -59,6 +59,11 @@ class InputDestination(Enum):
     Color = 0
     BrushWidth = 1
 
+INPUT_TITLE_DICT = {
+    InputDestination.Color: 'Enter a brush color',
+    InputDestination.BrushWidth: 'Enter a brush width',
+}
+
 class PyPaintApp(pgt.GameScreen):
     '''
     A application similar to ms paint
@@ -85,6 +90,22 @@ class PyPaintApp(pgt.GameScreen):
             0,
             None,
             pygame.font.Font(pygame.font.get_default_font(), 40),
+            True
+        )
+        title_height = 15
+        self.title_box = pgt.TextBox(
+            [''],
+            pygame.Rect(
+                self.window_size.x // 10,
+                self.input_box.rect.y - title_height,
+                self.window_size.x * 8 // 10,
+                title_height,
+            ),
+            self.parse_color('#222'),
+            'white',
+            0,
+            pgt.Point(0, 0),
+            pygame.font.Font(pygame.font.get_default_font(), title_height),
             True
         )
         self.input_box.done = True
@@ -136,9 +157,12 @@ class PyPaintApp(pgt.GameScreen):
             case 'c':
                 self.input_destination = InputDestination.Color
                 self.input_box.reset()
+                self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
+                print(self.title_box.text[0])
             case 's':
                 self.input_destination = InputDestination.BrushWidth
                 self.input_box.reset()
+                self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
             case 'f':
                 self.drawing_screen.fill(self.selected_color)
 
@@ -174,13 +198,22 @@ class PyPaintApp(pgt.GameScreen):
                     )
         raise ValueError('Invalid Color')
 
+    def draw_input(self):
+        '''
+        draw title_box and input_box to screen if input_box is active
+        '''
+        if self.input_box.done:
+            return
+        self.input_box.draw(self.screen)
+        self.title_box.draw(self.screen)
+
     def update(self):
         if pygame.mouse.get_pressed()[0]: # left click pressed
             self.handle_left_click()
         else:
             self.prev_pos = None
         self.screen.blit(self.drawing_screen, (0, 0))
-        self.input_box.draw(self.screen) # box above drawing screen
+        self.draw_input() # draw box above drawing_screen
 
 def main():
     '''Driver code'''
