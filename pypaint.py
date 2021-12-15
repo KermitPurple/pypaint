@@ -133,6 +133,7 @@ class PyPaintApp(pgt.GameScreen):
             pygame.font.Font(pygame.font.get_default_font(), title_height),
             True
         )
+        self.boxes = pgt.ManyOf(pgt.TextBox, self.input_box, self.title_box)
         self.input_box.done = True
         self.drawing_screen = pygame.Surface(self.window_size)
         self.drawing_screen.fill('white')
@@ -219,8 +220,7 @@ class PyPaintApp(pgt.GameScreen):
         '''
         if self.input_box.done:
             return
-        self.input_box.draw(self.screen)
-        self.title_box.draw(self.screen)
+        self.boxes.draw(self.screen)
 
     def update(self):
         if pygame.mouse.get_pressed()[0]: # left click pressed
