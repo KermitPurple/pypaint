@@ -32,28 +32,6 @@ def convert_hex(r1: str, r2: str, g1: str, g2: str, b1: str, b2: str) -> pygame.
         16 * HEX_DICT[b1] + HEX_DICT[b2]
     )
 
-def smooth_line(
-    screen: pygame.Surface,
-    color: pygame.Color,
-    start_pos: pgt.Point,
-    end_pos: pgt.Point,
-    density: int,
-    width: int = 1,
-    ):
-    distance = pgt.Point.distance(start_pos, end_pos)
-    scale = distance / density
-    theta = math.atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x)
-    i = 0
-    while i < distance:
-        rect = pygame.Rect(0, 0, width, width)
-        rect.center = start_pos + i * pgt.Point(math.cos(theta), math.sin(theta))
-        pygame.draw.rect(
-            screen,
-            color,
-            rect
-        )
-        i += scale
-
 def parse_color(color: str) -> pygame.Color:
     '''
     parse a color string
@@ -74,6 +52,14 @@ def parse_color(color: str) -> pygame.Color:
                 int(b),
                 )
     raise ValueError('Invalid Color')
+
+class BrushType(Enum):
+    Square = 0
+    Circle = 1
+    def get_next(self) -> 'BrushType':
+        '''Get the next brush type in the cycle'''
+        items = list(self.__class__)
+        return items[(items.index(self) + 1) % len(items)]
 
 class InputDestination(Enum):
     Color = 0
@@ -99,9 +85,10 @@ class PyPaintApp(pgt.GameScreen):
         super().__init__(pygame.display.set_mode(size), size, size // 2)
         self.center = self.window_size // 2
         self.selected_color = 'black'
-        self.selected_width = 5
+        self.selected_width = 6
         self.prev_pos = None
         self.input_destination = None
+        self.brush_type = BrushType.Square
         input_height = 60
         self.input_box = pgt.InputBox(
             pygame.Rect(
@@ -144,22 +131,9 @@ class PyPaintApp(pgt.GameScreen):
         '''
         pos = self.get_scaled_mouse_pos()
         if self.prev_pos is not None:
-            smooth_line(
-                self.drawing_screen,
-                self.selected_color,
-                pos,
-                self.prev_pos,
-                100,
-                self.selected_width
-            )
+            self.smooth_line(pos, self.prev_pos, 100)
         else:
-            rect = pgt.Rect(0, 0, self.selected_width, self.selected_width)
-            rect.center = pos
-            pygame.draw.rect(
-                self.drawing_screen,
-                self.selected_color,
-                rect
-            )
+            self.draw_brush(pos)
         self.prev_pos = pos
 
     def key_down(self, event: pygame.event.Event):
@@ -188,7 +162,7 @@ class PyPaintApp(pgt.GameScreen):
                 self.input_destination = None
             return
         match event.unicode.lower():
-            case ('c' | 'w' | 's' | 'l' ) as val:
+            case ('c' | 'w' | 's' | 'l') as val:
                 match val:
                     case 'c': # set color
                         self.input_destination = InputDestination.Color
@@ -202,6 +176,8 @@ class PyPaintApp(pgt.GameScreen):
                 self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
             case 'f': # fill screen
                 self.drawing_screen.fill(self.selected_color)
+            case 'b': # swap brushes
+                self.brush_type = self.brush_type.get_next()
 
     def set_color(self, color: str) -> bool:
         '''
@@ -221,6 +197,34 @@ class PyPaintApp(pgt.GameScreen):
         if self.input_box.done:
             return
         self.boxes.draw(self.screen)
+
+    def draw_brush(self, pos: pgt.Point):
+        ''''''
+        match self.brush_type:
+            case BrushType.Square:
+                rect = pygame.Rect(0, 0, self.selected_width, self.selected_width)
+                rect.center = pos
+                pygame.draw.rect(
+                    self.drawing_screen,
+                    self.selected_color,
+                    rect
+                )
+            case BrushType.Circle:
+                pygame.draw.circle(
+                    self.drawing_screen,
+                    self.selected_color,
+                    pos,
+                    self.selected_width // 2
+                )
+
+    def smooth_line(self, start_pos: pgt.Point, end_pos: pgt.Point, density: int,):
+        distance = pgt.Point.distance(start_pos, end_pos)
+        scale = distance / density
+        theta = math.atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x)
+        i = 0
+        while i < distance:
+            self.draw_brush(start_pos + i * pgt.Point(math.cos(theta), math.sin(theta)))
+            i += scale
 
     def update(self):
         if pygame.mouse.get_pressed()[0]: # left click pressed
