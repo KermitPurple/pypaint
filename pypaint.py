@@ -133,7 +133,7 @@ class PyPaintApp(pgt.GameScreen):
         if self.prev_pos is not None:
             self.smooth_line(pos, self.prev_pos, 100)
         else:
-            self.draw_brush(pos)
+            self.draw_point(pos)
         self.prev_pos = pos
 
     def key_down(self, event: pygame.event.Event):
@@ -198,8 +198,12 @@ class PyPaintApp(pgt.GameScreen):
             return
         self.boxes.draw(self.screen)
 
-    def draw_brush(self, pos: pgt.Point):
-        ''''''
+    def draw_point(self, pos: pgt.Point):
+        '''
+        draw a single point in in the line
+        varries given selected brush size
+        :pos: the position of the point
+        '''
         match self.brush_type:
             case BrushType.Square:
                 rect = pygame.Rect(0, 0, self.selected_width, self.selected_width)
@@ -218,12 +222,18 @@ class PyPaintApp(pgt.GameScreen):
                 )
 
     def smooth_line(self, start_pos: pgt.Point, end_pos: pgt.Point, density: int,):
+        '''
+        Draws a set of points in a line with given density
+        :start_pos: the start point of the line
+        :end_pos: the end pos of the lines
+        :density: the number of points to draw in the line
+        '''
         distance = pgt.Point.distance(start_pos, end_pos)
         scale = distance / density
         theta = math.atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x)
         i = 0
         while i < distance:
-            self.draw_brush(start_pos + i * pgt.Point(math.cos(theta), math.sin(theta)))
+            self.draw_point(start_pos + i * pgt.Point(math.cos(theta), math.sin(theta)))
             i += scale
 
     def update(self):
