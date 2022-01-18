@@ -174,6 +174,8 @@ class PyPaintApp(pgt.GameScreen):
                         self.input_destination = InputDestination.LoadFile
                 self.input_box.reset()
                 self.title_box.text[0] = INPUT_TITLE_DICT[self.input_destination]
+            case 'x': # fill screen with white
+                self.drawing_screen.fill('white')
             case 'f': # fill screen
                 self.drawing_screen.fill(self.selected_color)
             case 'b': # swap brushes
