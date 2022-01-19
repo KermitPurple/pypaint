@@ -123,7 +123,12 @@ class PyPaintApp(pgt.GameScreen):
         self.boxes = pgt.ManyOf(pgt.TextBox, self.input_box, self.title_box)
         self.help_box = pgt.TextBox(
             ['help text\n test'],
-            self.input_box.rect,
+            pgt.Rect(
+                self.input_box.rect.x,
+                self.window_size.y // 10,
+                self.input_box.rect.w,
+                self.window_size.y * 17 // 20,
+            ),
             parse_color('#333'),
             'white',
             0,
@@ -131,7 +136,21 @@ class PyPaintApp(pgt.GameScreen):
             pygame.font.Font(pygame.font.get_default_font(), 10),
             True,
         )
-        self.help_boxes = pgt.ManyOf(pgt.TextBox, self.help_box, self.title_box)
+        self.help_boxes = pgt.ManyOf(pgt.TextBox, self.help_box, pgt.TextBox(
+            ['Help'],
+            pgt.Rect(
+                self.title_box.rect.x,
+                self.help_box.rect.y - title_height,
+                self.title_box.rect.w,
+                self.title_box.rect.h,
+            ),
+            self.title_box.bg_color,
+            self.title_box.text_color,
+            0,
+            pgt.Point(0, 0),
+            self.title_box.font,
+            True,
+        ))
         self.input_box.done = True
         self.help_box.done = True
         self.drawing_screen = pygame.Surface(self.window_size)
