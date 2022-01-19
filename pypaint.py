@@ -122,7 +122,14 @@ class PyPaintApp(pgt.GameScreen):
         )
         self.boxes = pgt.ManyOf(pgt.TextBox, self.input_box, self.title_box)
         self.help_box = pgt.TextBox(
-            ['help text\n test'],
+            ['''c - set brush color
+w - set brush width
+s - save to a file
+l - load from a file
+x - fill screen white
+f - fill screen brush color
+b - swap brushes between circle and square
+h - show help menu'''],
             pgt.Rect(
                 self.input_box.rect.x,
                 self.window_size.y // 10,
@@ -133,7 +140,7 @@ class PyPaintApp(pgt.GameScreen):
             'white',
             0,
             None,
-            pygame.font.Font(pygame.font.get_default_font(), 10),
+            pygame.font.Font(pygame.font.get_default_font(), 20),
             True,
         )
         self.help_boxes = pgt.ManyOf(pgt.TextBox, self.help_box, pgt.TextBox(
@@ -174,7 +181,7 @@ class PyPaintApp(pgt.GameScreen):
         '''
         if not self.help_box.done:
             match event.unicode.lower():
-                case '\x1b' | '\r':
+                case '\x1b' | '\r' | 'h':
                     self.help_box.update()
         elif not self.input_box.done:
             self.input_box.update(event)
