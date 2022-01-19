@@ -121,7 +121,19 @@ class PyPaintApp(pgt.GameScreen):
             True
         )
         self.boxes = pgt.ManyOf(pgt.TextBox, self.input_box, self.title_box)
+        self.help_box = pgt.TextBox(
+            ['help text\n test'],
+            self.input_box.rect,
+            parse_color('#333'),
+            'white',
+            0,
+            None,
+            pygame.font.Font(pygame.font.get_default_font(), 10),
+            True,
+        )
+        self.help_boxes = pgt.ManyOf(pgt.TextBox, self.help_box, self.title_box)
         self.input_box.done = True
+        self.help_box.done = True
         self.drawing_screen = pygame.Surface(self.window_size)
         self.drawing_screen.fill('white')
 
@@ -141,7 +153,11 @@ class PyPaintApp(pgt.GameScreen):
         called when key is pressed
         :event: event of when the key is pressed
         '''
-        if not self.input_box.done:
+        if not self.help_box.done:
+            match event.unicode.lower():
+                case '\x1b' | '\r':
+                    self.help_box.update()
+        elif not self.input_box.done:
             self.input_box.update(event)
             if self.input_box.done:
                 match self.input_destination:
@@ -180,6 +196,9 @@ class PyPaintApp(pgt.GameScreen):
                 self.drawing_screen.fill(self.selected_color)
             case 'b': # swap brushes
                 self.brush_type = self.brush_type.get_next()
+            case 'h': # activate help menu
+                self.help_box.text_index = 0
+                self.help_box.done = False
 
     def set_color(self, color: str) -> bool:
         '''
@@ -191,6 +210,14 @@ class PyPaintApp(pgt.GameScreen):
         except ValueError as e:
             return False
         return True
+
+    def draw_help(self):
+        '''
+        draw help_boxes if help_box is active
+        '''
+        if self.help_box.done:
+            return
+        self.help_boxes.draw(self.screen)
 
     def draw_input(self):
         '''
@@ -245,6 +272,7 @@ class PyPaintApp(pgt.GameScreen):
             self.prev_pos = None
         self.screen.blit(self.drawing_screen, (0, 0))
         self.draw_input() # draw box above drawing_screen
+        self.draw_help()
 
 def main():
     '''Driver code'''
