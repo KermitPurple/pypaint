@@ -85,7 +85,7 @@ class PyPaintApp(pgt.GameScreen):
         super().__init__(pygame.display.set_mode(size), size, size // 2)
         self.center = self.window_size // 2
         self.selected_color = 'black'
-        self.selected_width = 6
+        self.selected_width = 2
         self.prev_pos = None
         self.input_destination = None
         self.brush_type = BrushType.Square
